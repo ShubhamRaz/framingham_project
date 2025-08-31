@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Framingham Heart Disease - Risk Assessment</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2a6cc7;
+      --primary-dark: #1a5bb8;
+      --secondary: #e63946;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #28a745;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+    
+    header {
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 25px 30px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    header::before {
+      content: "";
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+    
+    header::after {
+      content: "";
+      position: absolute;
+      bottom: -80px;
+      left: -80px;
+      width: 250px;
+      height: 250px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+    
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 28px;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .subtitle {
+      font-size: 16px;
+      opacity: 0.9;
+      margin-bottom: 5px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .content {
+      padding: 30px;
+    }
+    
+    .form-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .form-section {
+      flex: 1;
+      min-width: 300px;
+      background: var(--light);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      transition: var(--transition);
+    }
+    
+    .form-section:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--primary);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #4a5568;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 15px;
+      transition: var(--transition);
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(42, 108, 199, 0.2);
+    }
+    
+    button {
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 6px rgba(42, 108, 199, 0.2);
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 14px rgba(42, 108, 199, 0.3);
+    }
+    
+    .result-container {
+      margin-top: 30px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    
+    .result-container.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .result-card {
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: var(--card-shadow);
+      border-left: 5px solid var(--primary);
+    }
+    
+    .risk-level {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .high { color: var(--danger); }
+    .low { color: var(--success); }
+    
+    .probability {
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+    
+    .advice {
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      font-size: 15px;
+      border-left: 3px solid var(--primary);
+    }
+    
+    .error-card {
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: var(--card-shadow);
+      border-left: 5px solid var(--danger);
+    }
+    
+    .error {
+      color: var(--danger);
+      font-weight: 600;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .disclaimer {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #718096;
+    }
+    
+    .heart-icon {
+      color: var(--secondary);
+      margin-right: 5px;
+    }
+    
+    @media (max-width: 768px) {
+      .form-container {
+        flex-direction: column;
+      }
+      
+      header {
+        padding: 20px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+    }
+    
+    /* Animation for form elements */
+    .form-group {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    
+    .form-group.animate {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Pulse animation for important fields */
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(42, 108, 199, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(42, 108, 199, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(42, 108, 199, 0); }
+    }
+    
+    .important-field {
+      animation: pulse 2s infinite;
+    }
+    
+    /* Loading spinner */
+    .spinner {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid white;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-heartbeat heart-icon"></i> Framingham Heart Disease Risk Assessment</h1>
+      <p class="subtitle">Evaluate coronary heart disease risk based on the Framingham Heart Study</p>
+    </header>
+
+    <div class="content">
+      <p>Enter the patient data below. Values should match the units used during model training (e.g., age in years, totChol in mg/dL).</p>
+
+      <form action="/predict" method="post" id="prediction-form">
+        <div class="form-container">
+          <div class="form-section">
+            <h3 class="section-title"><i class="fas fa-user"></i> Demographics</h3>
+            
+            <div class="form-group">
+              <label for="male">Gender</label>
+              <select name="male" id="male" class="important-field">
+                <option value="1" {{ 'selected' if inputs and inputs.male == '1' else '' }}>Male</option>
+                <option value="0" {{ 'selected' if inputs and inputs.male == '0' else '' }}>Female</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="age">Age (years)</label>
+              <input type="number" step="0.1" name="age" id="age" value="{{ inputs.age if inputs else '' }}" class="important-field">
+            </div>
+
+            <div class="form-group">
+              <label for="BMI">BMI</label>
+              <input type="number" step="0.1" name="BMI" id="BMI" value="{{ inputs.BMI if inputs else '' }}">
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-title"><i class="fas fa-lungs"></i> Lifestyle Factors</h3>
+            
+            <div class="form-group">
+              <label for="currentSmoker">Current Smoker</label>
+              <select name="currentSmoker" id="currentSmoker">
+                <option value="1" {{ 'selected' if inputs and inputs.currentSmoker == '1' else '' }}>Yes</option>
+                <option value="0" {{ 'selected' if inputs and inputs.currentSmoker == '0' else '' }}>No</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="cigsPerDay">Cigarettes per Day</label>
+              <input type="number" step="0.1" name="cigsPerDay" id="cigsPerDay" value="{{ inputs.cigsPerDay if inputs else '0' }}">
+            </div>
+
+            <div class="form-group">
+              <label for="heartRate">Heart Rate (bpm)</label>
+              <input type="number" step="0.1" name="heartRate" id="heartRate" value="{{ inputs.heartRate if inputs else '' }}">
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-title"><i class="fas fa-heart"></i> Medical History</h3>
+            
+            <div class="form-group">
+              <label for="prevalentStroke">Previous Stroke</label>
+              <select name="prevalentStroke" id="prevalentStroke">
+                <option value="1" {{ 'selected' if inputs and inputs.prevalentStroke == '1' else '' }}>Yes</option>
+                <option value="0" {{ 'selected' if inputs and inputs.prevalentStroke == '0' else '' }}>No</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="prevalentHyp">Hypertension</label>
+              <select name="prevalentHyp" id="prevalentHyp">
+                <option value="1" {{ 'selected' if inputs and inputs.prevalentHyp == '1' else '' }}>Yes</option>
+                <option value="0" {{ 'selected' if inputs and inputs.prevalentHyp == '0' else '' }}>No</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="diabetes">Diabetes</label>
+              <select name="diabetes" id="diabetes">
+                <option value="1" {{ 'selected' if inputs and inputs.diabetes == '1' else '' }}>Yes</option>
+                <option value="0" {{ 'selected' if inputs and inputs.diabetes == '0' else '' }}>No</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="BPMeds">Blood Pressure Medication</label>
+              <select name="BPMeds" id="BPMeds">
+                <option value="1" {{ 'selected' if inputs and inputs.BPMeds == '1' else '' }}>Yes</option>
+                <option value="0" {{ 'selected' if inputs and inputs.BPMeds == '0' else '' }}>No</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-title"><i class="fas fa-tachometer-alt"></i> Clinical Measurements</h3>
+            
+            <div class="form-group">
+              <label for="totChol">Total Cholesterol (mg/dL)</label>
+              <input type="number" step="0.1" name="totChol" id="totChol" value="{{ inputs.totChol if inputs else '' }}" class="important-field">
+            </div>
+
+            <div class="form-group">
+              <label for="sysBP">Systolic BP (mm Hg)</label>
+              <input type="number" step="0.1" name="sysBP" id="sysBP" value="{{ inputs.sysBP if inputs else '' }}" class="important-field">
+            </div>
+
+            <div class="form-group">
+              <label for="diaBP">Diastolic BP (mm Hg)</label>
+              <input type="number" step="0.1" name="diaBP" id="diaBP" value="{{ inputs.diaBP if inputs else '' }}">
+            </div>
+
+            <div class="form-group">
+              <label for="glucose">Glucose (mg/dL)</label>
+              <input type="number" step="0.1" name="glucose" id="glucose" value="{{ inputs.glucose if inputs else '' }}">
+            </div>
+
+            <div class="form-group">
+              <label for="threshold">Risk Threshold (default: 0.5)</label>
+              <input type="number" step="0.01" min="0" max="1" name="threshold" id="threshold" value="{{ threshold if threshold else '0.5' }}">
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" id="predict-btn">
+          <div class="spinner" id="submit-spinner"></div>
+          <i class="fas fa-calculator"></i> Calculate Risk
+        </button>
+      </form>
+
+      <div class="result-container" id="result-container">
+        {% if prediction_text is not none %}
+          {% if prediction_text %}
+            <div class="result-card">
+              <div class="risk-level {{ 'high' if 'HIGH' in risk_text else 'low' }}">
+                <i class="fas {{ 'fa-exclamation-triangle' if 'HIGH' in risk_text else 'fa-check-circle' }}"></i>
+                <strong>{{ risk_text }}</strong>
+              </div>
+              <p class="probability">{{ probability_text }}</p>
+              <div class="advice">
+                <strong><i class="fas fa-lightbulb"></i> Recommendations:</strong>
+                <p class="note">{{ advice }}</p>
+              </div>
+            </div>
+          {% else %}
+            <div class="error-card">
+              <div class="error">
+                <i class="fas fa-exclamation-circle"></i>
+                <strong>Error Processing Request</strong>
+              </div>
+              <p><strong>Details:</strong> {{ error }}</p>
+              <pre>{{ tb }}</pre>
+            </div>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <div class="disclaimer">
+        <strong><i class="fas fa-info-circle"></i> Important Note:</strong> This tool provides a risk assessment based on the Framingham Heart Study algorithm. It is not a clinical diagnosis and should not replace professional medical advice. Always consult with a qualified healthcare provider for medical guidance.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Animate form elements on page load
+      const formGroups = document.querySelectorAll('.form-group');
+      formGroups.forEach((group, index) => {
+        setTimeout(() => {
+          group.classList.add('animate');
+        }, 100 + index * 50);
+      });
+
+      // Form submission handling
+      const form = document.getElementById('prediction-form');
+      const submitBtn = document.getElementById('predict-btn');
+      const spinner = document.getElementById('submit-spinner');
+      
+      if (form) {
+        form.addEventListener('submit', function() {
+          // Show loading spinner
+          spinner.style.display = 'block';
+          submitBtn.disabled = true;
+          
+          // Smooth scroll to results
+          setTimeout(() => {
+            const resultContainer = document.getElementById('result-container');
+            if (resultContainer) {
+              resultContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+          }, 500);
+        });
+      }
+
+      // Show result with animation if available
+      const resultContainer = document.getElementById('result-container');
+      if (resultContainer && resultContainer.innerHTML.trim() !== '') {
+        setTimeout(() => {
+          resultContainer.classList.add('show');
+        }, 300);
+      }
+
+      // Highlight important fields with pulsing animation
+      const importantFields = document.querySelectorAll('.important-field');
+      importantFields.forEach(field => {
+        field.addEventListener('focus', function() {
+          this.classList.remove('important-field');
+        });
+      });
+
+      // Add input validation
+      const numberInputs = document.querySelectorAll('input[type="number"]');
+      numberInputs.forEach(input => {
+        input.addEventListener('input', function() {
+          if (this.validity.valid) {
+            this.style.borderColor = '#e2e8f0';
+          } else {
+            this.style.borderColor = 'var(--danger)';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
